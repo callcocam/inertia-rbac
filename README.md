@@ -223,16 +223,11 @@ Assim os itens não autorizados nem chegam ao cliente.
 
 ## Teams / multi-tenant (escopo de permissões por tenant)
 
-> ⚠️ **"teams" aqui NÃO é o Teams do Jetstream.** O Laravel não tem teams nativo.
-> O que `rbac.teams` liga é a *teams feature do Spatie*: um **escopo de permissões
-> por tenant** — adiciona uma coluna `team_foreign_key` em `roles`/`model_has_*` para
-> você ter roles/permissões diferentes por tenant. **Não** cria tabela `teams` nem
-> model `Team`. Por isso não conflita com nada nativo do framework.
-
-| | O que é | Cria tabela `teams`? |
-|---|---|---|
-| **Jetstream Teams** | Agrupa usuários em times/organizações (`Team`, `current_team_id`, `HasTeams`). | Sim |
-| **`rbac.teams` (Spatie)** | Escopa roles/permissions por um id de tenant, via uma coluna extra. | Não — só a coluna |
+> O nome "teams" vem do Spatie e pode confundir: **não** é um recurso de "grupos de
+> usuários", e o Laravel não tem teams nativo. `rbac.teams` liga a *teams feature do
+> Spatie* = **escopo de permissões por tenant**: adiciona uma coluna `team_foreign_key`
+> em `roles`/`model_has_*` para você ter roles/permissões diferentes por tenant. **Não**
+> cria tabela `teams` nem model `Team`. Por isso não conflita com nada do framework.
 
 Está **desligado por padrão** (single-tenant). Para ligar:
 
@@ -240,28 +235,15 @@ Está **desligado por padrão** (single-tenant). Para ligar:
 // config/rbac.php
 'teams' => [
     'enabled' => true,
-    'foreign_key' => 'tenant_id',   // coluna de tenant nas tabelas do Spatie
-    'resolver' => null,             // null = lê a foreign_key do usuário autenticado
+    'foreign_key' => 'tenant_id',                             // coluna de tenant nas tabelas do Spatie
+    'resolver' => fn ($request) => $request->user()?->tenant_id, // null = lê a foreign_key do usuário
 ],
 ```
 
 Isso liga o middleware `SetPermissionTeamContext` no grupo de rotas e espelha
 `permission.teams` / `permission.column_names.team_foreign_key`. A **resolução do
-tenant atual é do app**.
-
-### Integração com Jetstream Teams
-
-São **complementares**: o Jetstream define *o que é um time*; o Spatie escopa *as
-permissões* por time. Basta apontar a `foreign_key`/`resolver` para o time atual do
-Jetstream:
-
-```php
-'teams' => [
-    'enabled' => true,
-    'foreign_key' => 'current_team_id',
-    'resolver' => fn ($request) => $request->user()?->current_team_id,
-],
-```
+tenant atual é do app** (por padrão o middleware lê a `foreign_key` do usuário
+autenticado; use `resolver` para buscar de outro lugar).
 
 > O Spatie suporta **um** `team_foreign_key` global. Se o app já usa a teams feature
 > do Spatie para outra coisa, os dois precisam concordar no mesmo nome de coluna.

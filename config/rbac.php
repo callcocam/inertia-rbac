@@ -26,10 +26,10 @@ return [
 
     // Escopo de permissões por TENANT (a "teams feature" do Spatie).
     //
-    // ATENÇÃO: isto NÃO é o "Teams" do Jetstream (grupos de usuários). Aqui é só o
-    // recurso do Spatie que escopa roles/permissions por um id de tenant, via uma
-    // coluna extra (team_foreign_key) nas tabelas roles/model_has_*. Não cria tabela
-    // 'teams' nem model Team. O Laravel não tem teams nativo, então não há conflito.
+    // É só o recurso do Spatie que escopa roles/permissions por um id de tenant, via
+    // uma coluna extra (team_foreign_key) nas tabelas roles/model_has_*. Não cria
+    // tabela 'teams' nem model Team — é multi-tenancy de permissões, não grupos de
+    // usuários. O Laravel não tem teams nativo, então não há conflito.
     //
     // Desligado por padrão (modo single-tenant). Quando ligado, o provider espelha
     // para config('permission.teams') e config('permission.column_names.team_foreign_key'),
@@ -37,13 +37,11 @@ return [
     'teams' => [
         'enabled' => env('RBAC_TEAMS', false),
 
-        // Coluna de tenant nas tabelas do Spatie. Se integrar com o Jetstream,
-        // aponte para 'current_team_id' para casar com o time atual dele.
+        // Coluna de tenant nas tabelas do Spatie.
         'foreign_key' => env('RBAC_TEAMS_FK', 'tenant_id'),
 
         // Callable(Request): int|string|null que resolve o tenant atual.
         // null = o middleware lê a própria foreign_key do usuário autenticado.
-        // Ex. Jetstream: fn ($request) => $request->user()?->current_team_id
         'resolver' => null,
     ],
 
