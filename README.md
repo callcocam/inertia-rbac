@@ -221,16 +221,50 @@ Assim os itens não autorizados nem chegam ao cliente.
 
 ---
 
-## Teams (multi-tenant)
+## Teams / multi-tenant (escopo de permissões por tenant)
+
+> ⚠️ **"teams" aqui NÃO é o Teams do Jetstream.** O Laravel não tem teams nativo.
+> O que `rbac.teams` liga é a *teams feature do Spatie*: um **escopo de permissões
+> por tenant** — adiciona uma coluna `team_foreign_key` em `roles`/`model_has_*` para
+> você ter roles/permissões diferentes por tenant. **Não** cria tabela `teams` nem
+> model `Team`. Por isso não conflita com nada nativo do framework.
+
+| | O que é | Cria tabela `teams`? |
+|---|---|---|
+| **Jetstream Teams** | Agrupa usuários em times/organizações (`Team`, `current_team_id`, `HasTeams`). | Sim |
+| **`rbac.teams` (Spatie)** | Escopa roles/permissions por um id de tenant, via uma coluna extra. | Não — só a coluna |
+
+Está **desligado por padrão** (single-tenant). Para ligar:
 
 ```php
-'teams' => ['enabled' => true, 'foreign_key' => 'tenant_id'],
+// config/rbac.php
+'teams' => [
+    'enabled' => true,
+    'foreign_key' => 'tenant_id',   // coluna de tenant nas tabelas do Spatie
+    'resolver' => null,             // null = lê a foreign_key do usuário autenticado
+],
 ```
 
 Isso liga o middleware `SetPermissionTeamContext` no grupo de rotas e espelha
-`permission.teams`/`team_foreign_key`. A **resolução do team atual é do app** —
-por padrão o middleware lê a FK do usuário; você pode definir um callable em
-`rbac.teams.resolver`.
+`permission.teams` / `permission.column_names.team_foreign_key`. A **resolução do
+tenant atual é do app**.
+
+### Integração com Jetstream Teams
+
+São **complementares**: o Jetstream define *o que é um time*; o Spatie escopa *as
+permissões* por time. Basta apontar a `foreign_key`/`resolver` para o time atual do
+Jetstream:
+
+```php
+'teams' => [
+    'enabled' => true,
+    'foreign_key' => 'current_team_id',
+    'resolver' => fn ($request) => $request->user()?->current_team_id,
+],
+```
+
+> O Spatie suporta **um** `team_foreign_key` global. Se o app já usa a teams feature
+> do Spatie para outra coisa, os dois precisam concordar no mesmo nome de coluna.
 
 ---
 
