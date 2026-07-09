@@ -49,7 +49,7 @@ Você vai criar um **pacote Composer** chamado `callcocam/inertia-rbac` (namespa
 
 ### Antes de escrever qualquer código
 
-- Rode `search-docs`/consulte a doc da versão instalada do `spatie/laravel-permission` para confirmar nomes de config (`table_names`, `column_names`, `teams`, `team_resolver`) e a assinatura das migrations na versão alvo (**assuma Spatie Permission v6+**, mas confirme).
+- Rode `search-docs`/consulte a doc da versão instalada do `spatie/laravel-permission` para confirmar nomes de config (`table_names`, `column_names`, `teams`, `team_resolver`) e a assinatura das migrations na versão alvo (**última estável = Spatie Permission v8+**; confirme com `composer show spatie/laravel-permission`).
 - Confirme versões alvo mirando **sempre o mais novo**: **PHP 8.3/8.4+**, **Laravel 12+/13+ (última estável)**, **Inertia v2+**, **Vue 3 (última)**. Rode `composer show` no ambiente para ver o que está instalado e programe contra essa API. Declare ranges amplos e à frente no `composer.json` (ex.: `"laravel/framework": "^12.0|^13.0"`), nunca travando numa versão antiga.
 
 ---
@@ -130,7 +130,7 @@ Use **Orchestra Testbench** para os testes do pacote.
     "php": "^8.3",
     "illuminate/contracts": "^12.0|^13.0",
     "inertiajs/inertia-laravel": "^2.0",
-    "spatie/laravel-permission": "^6.0"
+    "spatie/laravel-permission": "^8.0"
   },
   "require-dev": {
     "orchestra/testbench": "^10.0|^11.0",

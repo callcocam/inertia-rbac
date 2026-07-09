@@ -1,0 +1,63 @@
+<script setup lang="ts">
+/**
+ * REFERÊNCIA — copie para resources/js/pages/rbac/permissions/Index.vue.
+ * missing_count sugere rodar o sync do catálogo. Ações via Wayfinder (rbac.permissions.*).
+ */
+import { Deferred, Link, router } from '@inertiajs/vue3'
+import PermissionController from '@/actions/Callcocam/InertiaRbac/Http/Controllers/PermissionController'
+
+interface PermissionRow {
+  id: string
+  name: string
+  type: string
+  short_name: string | null
+  is_protected: boolean
+}
+
+defineProps<{
+  permissions?: { data: PermissionRow[] }
+  filters: { search: string | null; type: string | null }
+  types: string[]
+  missing_count: number
+  can: { create: boolean }
+}>()
+
+function sync(): void {
+  router.post(PermissionController.sync.url(), {}, { preserveScroll: true })
+}
+</script>
+
+<template>
+  <div>
+    <header class="flex items-center justify-between">
+      <h1 class="text-xl font-semibold">Permissões</h1>
+      <div class="flex gap-2">
+        <button v-if="missing_count > 0 && can.create" class="btn" @click="sync">
+          Sincronizar catálogo ({{ missing_count }})
+        </button>
+        <Link v-if="can.create" :href="PermissionController.create.url()" class="btn btn-primary">
+          Nova permissão
+        </Link>
+      </div>
+    </header>
+
+    <Deferred :data="'permissions'">
+      <template #fallback>
+        <p class="text-gray-500">Carregando permissões…</p>
+      </template>
+
+      <table class="mt-4 w-full">
+        <tbody>
+          <tr v-for="permission in permissions?.data" :key="permission.id">
+            <td>{{ permission.short_name ?? permission.name }}</td>
+            <td><code>{{ permission.name }}</code></td>
+            <td>{{ permission.type }}</td>
+            <td class="text-right">
+              <Link :href="PermissionController.edit.url(permission.id)" class="text-blue-600">Editar</Link>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </Deferred>
+  </div>
+</template>

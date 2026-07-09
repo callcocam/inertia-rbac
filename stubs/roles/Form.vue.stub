@@ -1,0 +1,76 @@
+<script setup lang="ts">
+/**
+ * REFERÊNCIA — copie para resources/js/pages/rbac/roles/Form.vue e adapte ao seu
+ * visual. Um único componente para criar E editar. O submit usa a variante .form()
+ * do Wayfinder, que já aponta para o controller/rota corretos do pacote.
+ */
+import { computed } from 'vue'
+import { Form } from '@inertiajs/vue3'
+import RoleController from '@/actions/Callcocam/InertiaRbac/Http/Controllers/RoleController'
+
+interface Permission {
+  id: string
+  name: string
+  type: string
+  short_name: string
+  description: string
+}
+
+const props = defineProps<{
+  role: {
+    id: string
+    name: string
+    system_name: string | null
+    type: string
+    is_protected: boolean
+    permissions: string[]
+  } | null
+  types: string[]
+  permissions: Permission[]
+}>()
+
+const isEdit = computed(() => props.role !== null)
+
+// create → store.form(); edit → update.form(id). Wayfinder resolve método + URL.
+const action = computed(() =>
+  isEdit.value ? RoleController.update.form(props.role!.id) : RoleController.store.form(),
+)
+</script>
+
+<template>
+  <div>
+    <h1 class="text-xl font-semibold">{{ isEdit ? 'Editar papel' : 'Novo papel' }}</h1>
+
+    <Form v-bind="action" class="mt-4 space-y-4" v-slot="{ errors, processing }">
+      <div>
+        <label>Nome</label>
+        <input name="name" :value="role?.name" type="text" />
+        <span v-if="errors.name" class="text-red-600">{{ errors.name }}</span>
+      </div>
+
+      <div>
+        <label>Tipo</label>
+        <select name="type" :value="role?.type ?? 'default'">
+          <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <fieldset>
+        <legend>Permissões</legend>
+        <label v-for="permission in permissions" :key="permission.id" class="block">
+          <input
+            type="checkbox"
+            name="permissions[]"
+            :value="permission.name"
+            :checked="role?.permissions.includes(permission.name)"
+          />
+          {{ permission.short_name }} <small class="text-gray-500">({{ permission.name }})</small>
+        </label>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary" :disabled="processing">
+        {{ isEdit ? 'Salvar' : 'Criar' }}
+      </button>
+    </Form>
+  </div>
+</template>

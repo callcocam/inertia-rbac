@@ -1,0 +1,67 @@
+{
+    "name": "callcocam/inertia-rbac",
+    "description": "RBAC (roles & permissions) para Laravel + Inertia + Vue, com ULID, catálogo de permissões como fonte única e Wayfinder para o frontend.",
+    "keywords": [
+        "laravel",
+        "inertia",
+        "vue",
+        "rbac",
+        "roles",
+        "permissions",
+        "spatie",
+        "ulid",
+        "wayfinder"
+    ],
+    "homepage": "https://github.com/callcocam/inertia-rbac",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Claudio Campos",
+            "email": "callcocam@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/contracts": "^12.0|^13.0",
+        "inertiajs/inertia-laravel": "^2.0",
+        "spatie/laravel-permission": "^8.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^3.0|^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Callcocam\\InertiaRbac\\": "src/",
+            "Callcocam\\InertiaRbac\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Callcocam\\InertiaRbac\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Callcocam\\InertiaRbac\\InertiaRbacServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

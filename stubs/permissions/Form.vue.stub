@@ -1,0 +1,65 @@
+<script setup lang="ts">
+/**
+ * REFERÊNCIA — copie para resources/js/pages/rbac/permissions/Form.vue.
+ * O name (slug) é IMUTÁVEL no edit. Submit via Wayfinder .form().
+ */
+import { computed } from 'vue'
+import { Form } from '@inertiajs/vue3'
+import PermissionController from '@/actions/Callcocam/InertiaRbac/Http/Controllers/PermissionController'
+
+const props = defineProps<{
+  permission: {
+    id: string
+    name: string
+    type: string
+    short_name: string | null
+    description: string | null
+    is_protected: boolean
+  } | null
+  types: string[]
+}>()
+
+const isEdit = computed(() => props.permission !== null)
+
+const action = computed(() =>
+  isEdit.value
+    ? PermissionController.update.form(props.permission!.id)
+    : PermissionController.store.form(),
+)
+</script>
+
+<template>
+  <div>
+    <h1 class="text-xl font-semibold">{{ isEdit ? 'Editar permissão' : 'Nova permissão' }}</h1>
+
+    <Form v-bind="action" class="mt-4 space-y-4" v-slot="{ errors, processing }">
+      <div>
+        <label>Nome (slug)</label>
+        <!-- Imutável no edit: só leitura quando editando. -->
+        <input name="name" :value="permission?.name" :readonly="isEdit" type="text" />
+        <span v-if="errors.name" class="text-red-600">{{ errors.name }}</span>
+      </div>
+
+      <div>
+        <label>Tipo</label>
+        <select name="type" :value="permission?.type ?? 'default'">
+          <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Rótulo curto</label>
+        <input name="short_name" :value="permission?.short_name ?? ''" type="text" />
+      </div>
+
+      <div>
+        <label>Descrição</label>
+        <textarea name="description" :value="permission?.description ?? ''"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" :disabled="processing">
+        {{ isEdit ? 'Salvar' : 'Criar' }}
+      </button>
+    </Form>
+  </div>
+</template>

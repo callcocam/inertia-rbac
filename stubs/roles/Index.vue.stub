@@ -1,0 +1,80 @@
+<script setup lang="ts">
+/**
+ * REFERÊNCIA — copie para resources/js/pages/rbac/roles/Index.vue e adapte ao
+ * visual do seu projeto (layout, componentes de UI, Tailwind). As AÇÕES usam as
+ * actions do Wayfinder geradas a partir das rotas do pacote (rbac.roles.*).
+ */
+import { Deferred, Link, router } from '@inertiajs/vue3'
+import RoleController from '@/actions/Callcocam/InertiaRbac/Http/Controllers/RoleController'
+
+interface RoleRow {
+  id: string
+  name: string
+  system_name: string | null
+  type: string
+  permissions_count: number
+  is_protected: boolean
+  created_at: string | null
+}
+
+interface Paginator<T> {
+  data: T[]
+  links: { url: string | null; label: string; active: boolean }[]
+}
+
+defineProps<{
+  // Prop DEFERIDA: chega depois do carregamento inicial (mostre skeleton).
+  roles?: Paginator<RoleRow>
+  filters: { search: string | null }
+  can: { create: boolean }
+}>()
+
+function destroy(role: RoleRow): void {
+  if (role.is_protected) return
+  if (!confirm(`Excluir o papel "${role.name}"?`)) return
+  router.delete(RoleController.destroy.url(role.id), { preserveScroll: true })
+}
+</script>
+
+<template>
+  <div>
+    <header class="flex items-center justify-between">
+      <h1 class="text-xl font-semibold">Papéis</h1>
+      <!-- Botão "Novo" só aparece se o servidor autorizou (server-driven). -->
+      <Link v-if="can.create" :href="RoleController.create.url()" class="btn btn-primary">
+        Novo papel
+      </Link>
+    </header>
+
+    <Deferred :data="'roles'">
+      <template #fallback>
+        <p class="text-gray-500">Carregando papéis…</p>
+      </template>
+
+      <table class="mt-4 w-full">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Permissões</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="role in roles?.data" :key="role.id">
+            <td>{{ role.name }}</td>
+            <td>{{ role.type }}</td>
+            <td>{{ role.permissions_count }}</td>
+            <td class="text-right">
+              <Link :href="RoleController.edit.url(role.id)" class="text-blue-600">Editar</Link>
+              <!-- Ação destrutiva escondida para papéis protegidos. -->
+              <button v-if="!role.is_protected" class="ml-2 text-red-600" @click="destroy(role)">
+                Excluir
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </Deferred>
+  </div>
+</template>
